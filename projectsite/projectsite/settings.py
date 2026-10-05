@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
+import socket
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,12 +22,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-51rd&s!i&6ize8lyai%@g%&1usfc8e&3x^u%i^+dy(507_ha&p'
+# On PythonAnywhere, set DJANGO_SECRET_KEY in the WSGI file (see the deploy steps).
+SECRET_KEY = os.environ.get(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-51rd&s!i&6ize8lyai%@g%&1usfc8e&3x^u%i^+dy(507_ha&p',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Are we running on PythonAnywhere? (Your own computer is not.)
+ON_PYTHONANYWHERE = 'pythonanywhere' in socket.gethostname()
+# CHANGE THIS to your own PythonAnywhere address, e.g. 'daven.pythonanywhere.com'
+PYTHONANYWHERE_DOMAIN = 'yourusername.pythonanywhere.com'
 
-ALLOWED_HOSTS = []
+DEBUG = not ON_PYTHONANYWHERE
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'mitsuozu.pythonanywhere.com']
+CSRF_TRUSTED_ORIGINS = [f'https://mitsuozu.pythonanywhere.com']
 
 
 # Application definition
@@ -44,6 +56,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.github',
+    'pwa',
 ]
 
 MIDDLEWARE = [
@@ -125,6 +138,14 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # `collectstatic` copies everything here
+
+if ON_PYTHONANYWHERE:
+    # PythonAnywhere serves the site over HTTPS behind a proxy.
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'  # so Google / GitHub get an https callback URL
 
 
 # Email
@@ -157,10 +178,45 @@ SOCIALACCOUNT_ADAPTER = 'taskmanager.adapters.SocialAccountAdapter'
 # matches the course ERD, with no owner field), so nobody can sign up on their
 # own: create accounts in the admin and let people connect Google / GitHub from
 # Settings. Turning these on lets strangers see and change ALL tasks.
-HANGARIN_SOCIAL_SIGNUP = True
-HANGARIN_OPEN_SIGNUP = True
+HANGARIN_SOCIAL_SIGNUP = False
+HANGARIN_OPEN_SIGNUP = False
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {'SCOPE': ['profile', 'email'], 'AUTH_PARAMS': {'access_type': 'online'}},
     'github': {'SCOPE': ['user:email']},
 }
+
+PWA_APP_NAME = 'Hangarin'
+PWA_APP_DESCRIPTION = 'Hangarin Task Management System'
+PWA_APP_THEME_COLOR = '#0A0A0A'
+PWA_APP_BACKGROUND_COLOR = '#FFFFFF'
+PWA_APP_DISPLAY = 'standalone'
+PWA_APP_SCOPE = '/'
+PWA_APP_ORIENTATION = 'portrait'
+PWA_APP_START_URL = '/'
+PWA_APP_STATUS_BAR_COLOR = 'default'
+PWA_APP_DIR = 'ltr'
+
+PWA_APP_ICONS = [
+    {
+        'src': '/static/hangarin/img/icon-192.png',
+        'sizes': '192x192'
+    },
+    {
+        'src': '/static/hangarin/img/icon-512.png',
+        'sizes': '512x512'
+    }
+]
+
+PWA_APP_ICONS_APPLE = [
+    {
+        'src': '/static/hangarin/img/icon-192.png',
+        'sizes': '192x192'
+    },
+    {
+        'src': '/static/hangarin/img/icon-512.png',
+        'sizes': '512x512'
+    }
+]
+
+PWA_SERVICE_WORKER_PATH = BASE_DIR / 'static' / 'hangarin' / 'js' / 'serviceworker.js'

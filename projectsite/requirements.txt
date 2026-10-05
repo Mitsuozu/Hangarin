@@ -4,3 +4,4 @@ Faker==40.39.0
 sqlparse==0.6.0
 tzdata==2026.4
 django-allauth[socialaccount]>=65.19.7
+django-pwa==2.0.1

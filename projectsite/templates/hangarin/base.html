@@ -1,9 +1,11 @@
-{% load static %}<!DOCTYPE html>
+{% load static %}
+{% load pwa %}<!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0a0a0a">
+  {% progressive_web_app_meta %}
   <title>{% block title %}Dashboard{% endblock %} · Hangarin</title>
   {# Bootstrap first, then our theme so our overrides win #}
   <link rel="stylesheet" href="{% static 'hangarin/vendor/bootstrap/css/bootstrap.min.css' %}">
