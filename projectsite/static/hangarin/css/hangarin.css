@@ -218,7 +218,7 @@ select option { background: #1b1b1b; color: var(--text); }
 .bars { display: flex; flex-direction: column; gap: 14px; }
 .bar-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.88rem; }
 .bar { height: 8px; border-radius: 99px; background: #242424; overflow: hidden; }
-.bar > span { display: block; height: 100%; border-radius: inherit; background: var(--gray); transform-origin: left; animation: grow 0.8s ease both; }
+.bar > span { display: block; height: 100%; border-radius: inherit; background: var(--gray); transform-origin: left; animation: grow 0.9s var(--ease-out) 0.3s both; }
 @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
 /* ---------- Tasks ---------- */
@@ -227,7 +227,7 @@ select option { background: #1b1b1b; color: var(--text); }
 .tasks > .task:first-child { border-top: 0; }
 .task:hover { background: rgba(255, 255, 255, 0.025); }
 .task-title { font-size: 0.98rem; font-weight: 600; }
-.task.is-done .task-title { color: var(--muted); text-decoration: line-through; }
+.task.is-done .task-title { color: var(--muted); }
 .task-desc { margin-top: 2px; color: var(--muted); font-size: 0.87rem; }
 .task-meta { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; }
 .meta { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--muted); }
@@ -296,7 +296,7 @@ select option { background: #1b1b1b; color: var(--text); }
 .social-btn { gap: 10px; }
 img.avatar-img { object-fit: cover; background: var(--panel-2); }
 .avatar-lg .avatar { width: 52px; height: 52px; font-size: 1.2rem; }
-.row-item.is-done .sub-title { color: var(--muted); text-decoration: line-through; }
+.row-item.is-done .sub-title { color: var(--muted); }
 .sub-title { font-weight: 600; font-size: 0.95rem; overflow-wrap: anywhere; }
 .empty { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 48px 20px; color: var(--muted); text-align: center; }
 .pager { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 14px; margin-top: 18px; }
@@ -333,6 +333,93 @@ img.avatar-img { object-fit: cover; background: var(--panel-2); }
   .stat { padding: 16px; }
   .stat-value { font-size: 1.9rem; }
 }
+
+/* ==========================================================================
+   Motion. Everything below is purely visual; the reduced-motion rule at the
+   very bottom of this file switches all of it off.
+   Note: entrance animations use fill-mode "backwards" so they never fight the
+   hover transforms (translateY etc.) once they have finished.
+   ========================================================================== */
+:root { --ease-out: cubic-bezier(0.22, 1, 0.36, 1); }
+
+/* Lets the progress ring animate from 0 to its value */
+@property --pct { syntax: "<number>"; inherits: false; initial-value: 0; }
+
+@keyframes hg-rise { from { opacity: 0; transform: translateY(12px); } }
+@keyframes hg-slide { from { opacity: 0; transform: translateX(-12px); } }
+@keyframes hg-pop { from { opacity: 0; transform: scale(0.94); } }
+@keyframes hg-fade { from { opacity: 0; } }
+@keyframes hg-menu { from { opacity: 0; translate: 0 -6px; } }
+@keyframes hg-ring { from { --pct: 0; } }
+@keyframes hg-indicator { from { transform: scaleY(0); } }
+@keyframes hg-check-pop { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
+@keyframes hg-ping {
+  0%   { box-shadow: 0 0 10px rgba(229, 9, 54, 0.6), 0 0 0 0 rgba(229, 9, 54, 0.55); }
+  70%, 100% { box-shadow: 0 0 10px rgba(229, 9, 54, 0.6), 0 0 0 9px rgba(229, 9, 54, 0); }
+}
+
+/* Page load: sections rise in one after another */
+.page > * { animation: hg-rise 0.5s var(--ease-out) backwards; }
+.page > :nth-child(2) { animation-delay: 0.05s; }
+.page > :nth-child(3) { animation-delay: 0.1s; }
+.page > :nth-child(4) { animation-delay: 0.15s; }
+.page > :nth-child(n+5) { animation-delay: 0.2s; }
+.auth-card { animation: hg-rise 0.6s var(--ease-out) backwards; }
+.alert { animation: hg-pop 0.35s var(--ease-out) backwards; }
+
+/* Dashboard: stat cards pop in, ring fills, bars stagger */
+.stat { animation: hg-pop 0.5s var(--ease-out) 0.1s backwards; }
+.row > :nth-child(2) > .stat { animation-delay: 0.16s; }
+.row > :nth-child(3) > .stat { animation-delay: 0.22s; }
+.row > :nth-child(4) > .stat { animation-delay: 0.28s; }
+.ring { animation: hg-ring 1.1s var(--ease-out) 0.2s backwards; }
+.bars li:nth-child(2) .bar > span { animation-delay: 0.4s; }
+.bars li:nth-child(3) .bar > span { animation-delay: 0.5s; }
+.bars li:nth-child(4) .bar > span { animation-delay: 0.6s; }
+.bars li:nth-child(n+5) .bar > span { animation-delay: 0.7s; }
+
+/* Lists: rows slide in with a stagger */
+.tasks > .task, .rows > .row-item, .deadlines > li { animation: hg-slide 0.45s var(--ease-out) 0.15s backwards; }
+.tasks > .task:nth-child(2), .rows > .row-item:nth-child(2), .deadlines > li:nth-child(2) { animation-delay: 0.195s; }
+.tasks > .task:nth-child(3), .rows > .row-item:nth-child(3), .deadlines > li:nth-child(3) { animation-delay: 0.24s; }
+.tasks > .task:nth-child(4), .rows > .row-item:nth-child(4), .deadlines > li:nth-child(4) { animation-delay: 0.285s; }
+.tasks > .task:nth-child(5), .rows > .row-item:nth-child(5), .deadlines > li:nth-child(5) { animation-delay: 0.33s; }
+.tasks > .task:nth-child(6), .rows > .row-item:nth-child(6), .deadlines > li:nth-child(6) { animation-delay: 0.375s; }
+.tasks > .task:nth-child(7), .rows > .row-item:nth-child(7), .deadlines > li:nth-child(7) { animation-delay: 0.42s; }
+.tasks > .task:nth-child(8), .rows > .row-item:nth-child(8), .deadlines > li:nth-child(8) { animation-delay: 0.465s; }
+.tasks > .task:nth-child(9), .rows > .row-item:nth-child(9), .deadlines > li:nth-child(9) { animation-delay: 0.51s; }
+.tasks > .task:nth-child(10), .rows > .row-item:nth-child(10), .deadlines > li:nth-child(10) { animation-delay: 0.555s; }
+.tasks > .task:nth-child(n+11), .rows > .row-item:nth-child(n+11), .deadlines > li:nth-child(n+11) { animation-delay: 0.6s; }
+
+/* Hover and press feedback */
+.icon { transition: transform 0.2s var(--ease-out); }
+.btn:active, .icon-btn:active { transform: scale(0.96); }
+.btn-primary:active, .btn-danger:active { transform: translateY(0) scale(0.97); }
+.icon-btn { transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s var(--ease-out); }
+.icon-btn:hover .icon { transform: scale(1.12); }
+.stat-icon { transition: transform 0.25s var(--ease-out); }
+.stat:hover .stat-icon { transform: scale(1.1) rotate(-6deg); }
+.brand-mark { transition: transform 0.25s var(--ease-out); }
+.brand:hover .brand-mark { transform: rotate(-8deg) scale(1.06); }
+.side-link .icon { transition: transform 0.2s var(--ease-out), color 0.15s; }
+.side-link:hover .icon { transform: translateX(3px); }
+.side-link.is-active::before { transform-origin: center; animation: hg-indicator 0.45s var(--ease-out) backwards; }
+.avatar-btn > .icon { transition: transform 0.2s var(--ease-out); }
+.avatar-btn[aria-expanded="true"] > .icon { transform: rotate(180deg); }
+.dropdown-menu.show { animation: hg-menu 0.18s var(--ease-out); }
+.dot { animation: hg-ping 2s ease-out infinite; }
+.app.sidebar-open .app-backdrop { animation: hg-fade 0.25s ease; }
+
+/* Completing a task: the tick draws itself, the box pops, the title gets struck through */
+.check .icon { stroke-dasharray: 24; stroke-dashoffset: 24; transition: stroke-dashoffset 0.3s ease 0.08s; }
+.check.is-checked .icon { stroke-dashoffset: 0; }
+.check.is-popping { animation: hg-check-pop 0.35s var(--ease-out); }
+.task-title a, .sub-title {
+  background: linear-gradient(currentColor, currentColor) no-repeat 0 58% / 0 2px;
+  transition: background-size 0.35s var(--ease-out), color 0.3s;
+}
+.task.is-done .task-title a, .row-item.is-done .sub-title { background-size: 100% 2px; }
+.sub-title { align-self: flex-start; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
