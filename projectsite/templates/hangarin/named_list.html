@@ -1,0 +1,43 @@
+{% extends 'hangarin/base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div>
+    <h1>{{ page_title }}</h1>
+    <p class="muted">{{ meta.blurb }}</p>
+  </div>
+  <a class="btn btn-primary" href="{% url meta.add_name %}">
+    <svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>New {{ meta.singular|lower }}
+  </a>
+</section>
+
+<section class="panel" aria-label="{{ page_title }}">
+  {% if items %}
+  <ul class="rows">
+    {% for item in items %}
+    <li class="row-item">
+      <span class="stat-icon" aria-hidden="true"><svg class="icon"><use href="#{{ meta.icon }}"></use></svg></span>
+      <div class="row-main">
+        <strong>{{ item.name }}</strong>
+        <small class="muted">{{ item.task_count }} task{{ item.task_count|pluralize }}</small>
+      </div>
+      <a class="btn btn-ghost btn-sm row-view" href="{% url 'task-list' %}?{{ meta.filter_param }}={{ item.pk }}">View tasks</a>
+      <div class="task-actions">
+        <a class="icon-btn" href="{% url meta.edit_name item.pk %}" aria-label="Edit {{ item.name }}" title="Edit"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-edit"></use></svg></a>
+        <a class="icon-btn icon-btn-danger" href="{% url meta.delete_name item.pk %}" aria-label="Delete {{ item.name }}" title="Delete"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-trash"></use></svg></a>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="empty">
+    <p>No {{ meta.plural|lower }} yet.</p>
+    <a class="btn btn-primary btn-sm" href="{% url meta.add_name %}">Create the first one</a>
+  </div>
+  {% endif %}
+</section>
+
+{% include 'hangarin/includes/pagination.html' %}
+{% endblock %}

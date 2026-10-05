@@ -1,0 +1,39 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>{% block title %}Dashboard{% endblock %} · Hangarin</title>
+  {# Bootstrap first, then our theme so our overrides win #}
+  <link rel="stylesheet" href="{% static 'hangarin/vendor/bootstrap/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'hangarin/css/hangarin.css' %}">
+</head>
+<body>
+  {% include 'hangarin/includes/icons.html' %}
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="app" id="app">
+    {% include 'hangarin/includes/sidebar.html' %}
+    <div class="app-backdrop" data-sidebar-close></div>
+
+    <div class="app-main">
+      {% include 'hangarin/includes/navbar.html' %}
+      <main class="page" id="main">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' or message.tags == 'warning' %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% block content %}{% endblock %}
+      </main>
+      {% include 'hangarin/includes/footer.html' %}
+    </div>
+  </div>
+
+  <script src="{% static 'hangarin/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'hangarin/js/hangarin.js' %}" defer></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,30 @@
+{% extends "account/base_entrance.html" %}
+{% load allauth socialaccount %}
+{% block head_title %}Sign in{% endblock head_title %}
+{% block content %}
+  <h1 class="auth-title text-center">Welcome back</h1>
+  <p class="muted text-center mb-4">Sign in to see your tasks.</p>
+
+  {% get_providers as socialaccount_providers %}
+  {% if socialaccount_providers %}
+    {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+    <div class="auth-divider"><span>or use your username</span></div>
+  {% endif %}
+
+  {% url 'account_login' as login_url %}
+  {% element form form=form method="post" action=login_url tags="entrance,login" %}
+    {% slot body %}
+      {% csrf_token %}
+      {% element fields form=form %}
+      {% endelement %}
+      {{ redirect_field }}
+    {% endslot %}
+    {% slot actions %}
+      {% element button type="submit" tags="prominent,login" %}Sign in{% endelement %}
+    {% endslot %}
+  {% endelement %}
+
+  {% if open_signup %}
+  <p class="muted text-center mt-4 mb-0">New here? <a class="link" href="{% url 'account_signup' %}">Create an account</a></p>
+  {% endif %}
+{% endblock content %}

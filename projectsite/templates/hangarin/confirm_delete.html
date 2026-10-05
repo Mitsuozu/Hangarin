@@ -1,0 +1,20 @@
+{% extends 'hangarin/base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <h1>Delete {{ object_label }}</h1>
+</section>
+
+<div class="panel panel-body form-narrow">
+  <p>Are you sure you want to delete <strong>&ldquo;{{ object|truncatechars:80 }}&rdquo;</strong>?</p>
+  {% if warning %}<div class="alert alert-warning mt-3 mb-0">{{ warning }}</div>{% endif %}
+  <p class="muted small mt-3">This cannot be undone.</p>
+  <form method="post" class="d-flex gap-2 mt-3">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, delete</button>
+    <a class="btn btn-ghost" href="{{ cancel_url }}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

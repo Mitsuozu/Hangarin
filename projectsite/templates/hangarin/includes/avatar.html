@@ -1,0 +1,1 @@
+{% if profile.avatar_url %}<img class="avatar avatar-img" src="{{ profile.avatar_url }}" alt="" width="34" height="34" referrerpolicy="no-referrer">{% else %}<span class="avatar" aria-hidden="true">{{ profile.initial|default:"G" }}</span>{% endif %}

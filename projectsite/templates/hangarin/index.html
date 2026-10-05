@@ -1,0 +1,127 @@
+{% extends 'hangarin/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div>
+    <h1>{{ greeting }}</h1>
+    <p class="muted">Here is where your tasks stand today. Small steps add up.</p>
+  </div>
+  <a class="btn btn-primary" href="{% url 'task-add' %}">
+    <svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>New task
+  </a>
+</section>
+
+<section class="row g-3 mb-4" aria-label="Task statistics">
+  <div class="col-6 col-xl-3"><a class="stat h-100" href="{% url 'task-list' %}">
+    <div><p class="stat-label">Total Tasks</p><p class="stat-value">{{ stats.total }}</p></div>
+    <span class="stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-list"></use></svg></span>
+  </a></div>
+  <div class="col-6 col-xl-3"><a class="stat h-100" href="{% url 'task-list' %}?status=Pending">
+    <div><p class="stat-label">Pending</p><p class="stat-value">{{ stats.pending }}</p></div>
+    <span class="stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-clock"></use></svg></span>
+  </a></div>
+  <div class="col-6 col-xl-3"><a class="stat h-100" href="{% url 'task-list' %}?status=In%20Progress">
+    <div><p class="stat-label">In Progress</p><p class="stat-value">{{ stats.in_progress }}</p></div>
+    <span class="stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-activity"></use></svg></span>
+  </a></div>
+  <div class="col-6 col-xl-3"><a class="stat h-100" href="{% url 'task-completed' %}">
+    <div><p class="stat-label">Completed</p><p class="stat-value">{{ stats.completed }}</p></div>
+    <span class="stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-check-circle"></use></svg></span>
+  </a></div>
+</section>
+
+<div class="row g-4">
+  <div class="col-12 col-xl-8"><div class="stack">
+    <section class="panel" aria-labelledby="progress-title">
+      <div class="panel-head"><h2 id="progress-title">Task progress</h2></div>
+      <div class="panel-body"><div class="row g-4">
+        <div class="col-12 col-md-auto"><div class="ring-wrap">
+          <div class="ring" style="--pct: {{ completion_percent }}" role="img" aria-label="{{ completion_percent }} percent of tasks completed">
+            <span class="ring-value">{{ completion_percent }}%</span>
+          </div>
+          <p class="muted small">{{ stats.completed }} of {{ stats.total }} completed</p>
+        </div></div>
+
+        <div class="col-12 col-sm-6 col-md">
+          <h3 class="mini-title">By status</h3>
+          <ul class="bars">
+            {% for item in status_breakdown %}
+            <li>
+              <div class="bar-row"><span>{{ item.label }}</span><span class="muted">{{ item.count }}</span></div>
+              <div class="bar"><span class="fill-status-{{ item.label|slugify }}" style="width: {{ item.percent }}%"></span></div>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md">
+          <h3 class="mini-title">By priority</h3>
+          {% if priority_breakdown %}
+          <ul class="bars">
+            {% for item in priority_breakdown %}
+            <li>
+              <div class="bar-row"><span>{{ item.name }}</span><span class="muted">{{ item.count }}</span></div>
+              <div class="bar"><span class="fill-pri-{{ item.name|slugify }}" style="width: {{ item.percent }}%"></span></div>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="muted small">No priorities yet.</p>
+          {% endif %}
+        </div>
+      </div></div>
+    </section>
+
+    <section class="panel" aria-labelledby="recent-title">
+      <div class="panel-head">
+        <h2 id="recent-title">Recent tasks</h2>
+        <a class="link" href="{% url 'task-list' %}">View all</a>
+      </div>
+      {% if recent_tasks %}
+      <ul class="tasks">
+        {% for task in recent_tasks %}{% include 'hangarin/includes/task_row.html' %}{% endfor %}
+      </ul>
+      {% else %}
+      <div class="empty">
+        <p>No tasks yet.</p>
+        <a class="btn btn-primary btn-sm" href="{% url 'task-add' %}">Create your first task</a>
+      </div>
+      {% endif %}
+    </section>
+  </div></div>
+
+  <div class="col-12 col-xl-4"><div class="stack">
+    <section class="panel" aria-labelledby="deadlines-title">
+      <div class="panel-head"><h2 id="deadlines-title">Upcoming deadlines</h2></div>
+      {% if upcoming_deadlines %}
+      <ul class="deadlines">
+        {% for task in upcoming_deadlines %}
+        <li>
+          <div class="date-chip" aria-hidden="true"><span>{{ task.deadline|date:"M" }}</span><strong>{{ task.deadline|date:"j" }}</strong></div>
+          <div class="deadline-text">
+            <a href="{% url 'task-detail' task.pk %}">{{ task.title }}</a>
+            <small class="muted">{{ task.deadline|date:"D, g:i A" }} · {{ task.category.name }}</small>
+          </div>
+          <span class="badge pri-{{ task.priority.name|slugify }}">{{ task.priority.name }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="muted small pad">Nothing due soon. Enjoy the calm.</p>
+      {% endif %}
+    </section>
+
+    <section class="panel" aria-labelledby="quick-title">
+      <div class="panel-head"><h2 id="quick-title">Quick actions</h2></div>
+      <div class="quick">
+        <a class="btn btn-primary" href="{% url 'task-add' %}"><svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>New task</a>
+        <a class="btn btn-ghost" href="{% url 'category-add' %}"><svg class="icon" aria-hidden="true"><use href="#i-tag"></use></svg>New category</a>
+        <a class="btn btn-ghost" href="{% url 'priority-list' %}"><svg class="icon" aria-hidden="true"><use href="#i-flag"></use></svg>Manage priorities</a>
+        <a class="btn btn-ghost" href="{% url 'note-add' %}"><svg class="icon" aria-hidden="true"><use href="#i-note"></use></svg>Add note</a>
+      </div>
+    </section>
+  </div></div>
+</div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'hangarin/base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div>
+    <h1>{{ page_title }}</h1>
+    <p class="muted">{{ page_subtitle }}</p>
+  </div>
+  <a class="btn btn-primary" href="{% url 'task-add' %}">
+    <svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>New task
+  </a>
+</section>
+
+<form class="panel panel-body mb-3" method="get" aria-label="Filter and sort tasks">
+  {% if request.GET.q %}<input type="hidden" name="q" value="{{ request.GET.q }}">{% endif %}
+  <div class="row g-3 align-items-end">
+    <div class="col-6 col-lg-3">
+      <label class="form-label" for="f-status">Status</label>
+      <select id="f-status" class="form-select" name="status" data-autosubmit>
+        <option value="">All statuses</option>
+        {% for value, label in status_choices %}
+        <option value="{{ value }}"{% if request.GET.status == value %} selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-lg-3">
+      <label class="form-label" for="f-category">Category</label>
+      <select id="f-category" class="form-select" name="category" data-autosubmit>
+        <option value="">All categories</option>
+        {% for c in categories %}
+        <option value="{{ c.pk }}"{% if request.GET.category == c.pk|stringformat:"s" %} selected{% endif %}>{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-lg-3">
+      <label class="form-label" for="f-priority">Priority</label>
+      <select id="f-priority" class="form-select" name="priority" data-autosubmit>
+        <option value="">All priorities</option>
+        {% for p in priorities %}
+        <option value="{{ p.pk }}"{% if request.GET.priority == p.pk|stringformat:"s" %} selected{% endif %}>{{ p.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-lg-3">
+      <label class="form-label" for="f-sort">Sort by</label>
+      <select id="f-sort" class="form-select" name="sort" data-autosubmit>
+        {% for key, label in sort_options %}
+        <option value="{{ key }}"{% if request.GET.sort == key or not request.GET.sort and key == "deadline" %} selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <noscript><button type="submit" class="btn btn-ghost btn-sm mt-3">Apply</button></noscript>
+  {% if filters_active %}<div class="mt-3"><a class="link" href="{{ request.path }}">Reset filters</a></div>{% endif %}
+</form>
+
+{% if request.GET.q %}
+<p class="muted small">Results for “{{ request.GET.q }}”</p>
+{% endif %}
+
+<section class="panel" aria-label="Task list">
+  {% if tasks %}
+  <ul class="tasks">
+    {% for task in tasks %}{% include 'hangarin/includes/task_row.html' %}{% endfor %}
+  </ul>
+  {% else %}
+  <div class="empty">
+    <p>{% if filters_active %}No tasks match these filters.{% else %}Nothing here yet.{% endif %}</p>
+    {% if filters_active %}
+      <a class="btn btn-ghost btn-sm" href="{{ request.path }}">Clear filters</a>
+    {% else %}
+      <a class="btn btn-primary btn-sm" href="{% url 'task-add' %}">Create a task</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+
+{% include 'hangarin/includes/pagination.html' %}
+{% endblock %}

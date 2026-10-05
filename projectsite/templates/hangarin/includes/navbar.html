@@ -1,0 +1,51 @@
+<header class="topbar">
+  <button class="icon-btn menu-btn" type="button" data-sidebar-toggle aria-controls="sidebar" aria-expanded="false" aria-label="Toggle navigation">
+    <svg class="icon" aria-hidden="true"><use href="#i-menu"></use></svg>
+  </button>
+
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="{% url 'dashboard' %}">Hangarin</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{{ page_title|default:"Dashboard" }}</span>
+  </nav>
+
+  <form class="search" role="search" method="get" action="{% url 'task-list' %}">
+    <label class="visually-hidden" for="global-search">Search tasks</label>
+    <svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg>
+    <input id="global-search" class="form-control" type="search" name="q" value="{{ request.GET.q }}" placeholder="Search tasks…" autocomplete="off">
+  </form>
+
+  <div class="topbar-actions">
+    <a class="icon-btn" href="{% url 'task-overdue' %}" aria-label="Overdue tasks: {{ overdue_count }}" title="Overdue tasks">
+      <svg class="icon" aria-hidden="true"><use href="#i-bell"></use></svg>
+      {% if overdue_count %}<span class="dot">{{ overdue_count }}</span>{% endif %}
+    </a>
+
+    <a class="btn btn-primary" href="{% url 'task-add' %}">
+      <svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg><span class="btn-label">New task</span>
+    </a>
+
+    <div class="dropdown">
+      <button class="avatar-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        {% include 'hangarin/includes/avatar.html' %}
+        <span class="visually-hidden">Account menu</span>
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-chevron"></use></svg>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><h6 class="dropdown-header">{% if profile %}{{ profile.name }}{% else %}Guest{% endif %}</h6></li>
+        <li><a class="dropdown-item" href="{% url 'settings' %}">Settings</a></li>
+        {% if user.is_staff %}<li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin panel</a></li>{% endif %}
+        {% if user.is_authenticated %}
+        <li>
+          <form method="post" action="{% url 'account_logout' %}">
+            {% csrf_token %}
+            <button class="dropdown-item" type="submit">Log out</button>
+          </form>
+        </li>
+        {% else %}
+        <li><a class="dropdown-item" href="{% url 'account_login' %}?next={{ request.path|urlencode }}">Sign in</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</header>

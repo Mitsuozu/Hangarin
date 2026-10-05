@@ -1,0 +1,11 @@
+{% load allauth %}
+<section class="mb-4">
+  <h2 class="auth-sub">{% slot title %}{% endslot %}</h2>
+  {% slot body %}
+  {% endslot %}
+  {% if slots.actions %}
+    <div class="d-grid gap-2 mt-3">
+      {% for action in slots.actions %}{{ action }}{% endfor %}
+    </div>
+  {% endif %}
+</section>

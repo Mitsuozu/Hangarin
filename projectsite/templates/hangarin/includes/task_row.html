@@ -1,0 +1,37 @@
+{# Expects: task #}
+<li class="task{% if task.status == 'Completed' %} is-done{% endif %}">
+  <form class="task-check" method="post" action="{% url 'task-toggle' task.pk %}">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <button type="submit" class="check{% if task.status == 'Completed' %} is-checked{% endif %}"
+            aria-pressed="{% if task.status == 'Completed' %}true{% else %}false{% endif %}"
+            aria-label="{% if task.status == 'Completed' %}Mark &quot;{{ task.title }}&quot; as pending{% else %}Mark &quot;{{ task.title }}&quot; as completed{% endif %}">
+      <svg class="icon icon-sm" aria-hidden="true"><use href="#i-check"></use></svg>
+    </button>
+  </form>
+
+  <div class="task-main">
+    <h3 class="task-title"><a href="{% url 'task-detail' task.pk %}">{{ task.title }}</a></h3>
+    {% if task.description %}<p class="task-desc">{{ task.description|truncatewords:22 }}</p>{% endif %}
+    <div class="task-meta">
+      <span class="meta{% if task.deadline < now and task.status != 'Completed' %} is-overdue{% endif %}">
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-clock"></use></svg>
+        {{ task.deadline|date:"M j, Y · g:i A" }}{% if task.deadline < now and task.status != 'Completed' %} (overdue){% endif %}
+      </span>
+      <span class="meta"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-tag"></use></svg>{{ task.category.name }}</span>
+      {% if task.subtask_total %}<span class="meta"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-check-circle"></use></svg>{{ task.subtask_done }}/{{ task.subtask_total }} subtasks</span>{% endif %}
+    </div>
+  </div>
+
+  <div class="task-badges">
+    <span class="badge status-{{ task.status|slugify }}">{{ task.status }}</span>
+    <span class="badge pri-{{ task.priority.name|slugify }}">{{ task.priority.name }}</span>
+  </div>
+
+  <div class="task-actions">
+    <a class="icon-btn" href="{% url 'task-edit' task.pk %}" aria-label="Edit {{ task.title }}" title="Edit">
+      <svg class="icon icon-sm" aria-hidden="true"><use href="#i-edit"></use></svg></a>
+    <a class="icon-btn icon-btn-danger" href="{% url 'task-delete' task.pk %}" aria-label="Delete {{ task.title }}" title="Delete">
+      <svg class="icon icon-sm" aria-hidden="true"><use href="#i-trash"></use></svg></a>
+  </div>
+</li>

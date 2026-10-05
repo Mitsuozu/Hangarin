@@ -1,0 +1,33 @@
+{% extends 'hangarin/base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <h1>{{ form_title }}</h1>
+</section>
+
+<form method="post" class="panel panel-body form-narrow" novalidate>
+  {% csrf_token %}
+  {% for error in form.non_field_errors %}<div class="alert alert-danger">{{ error }}</div>{% endfor %}
+
+  <div class="row g-3">
+    {% include 'hangarin/includes/form_fields.html' %}
+  </div>
+
+  {% if no_categories %}
+  <div class="alert alert-info mt-3 mb-0">You have no categories yet. <a class="link" href="{% url 'category-add' %}">Create one</a> before saving a task.</div>
+  {% endif %}
+  {% if no_priorities %}
+  <div class="alert alert-info mt-3 mb-0">You have no priorities yet. <a class="link" href="{% url 'priority-add' %}">Create one</a> before saving a task.</div>
+  {% endif %}
+  {% if no_tasks %}
+  <div class="alert alert-info mt-3 mb-0">Notes belong to a task. <a class="link" href="{% url 'task-add' %}">Create a task</a> first.</div>
+  {% endif %}
+
+  <div class="d-flex gap-2 mt-4">
+    <button type="submit" class="btn btn-primary">{{ submit_label|default:"Save" }}</button>
+    <a class="btn btn-ghost" href="{{ cancel_url }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

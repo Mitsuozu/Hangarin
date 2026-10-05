@@ -1,0 +1,48 @@
+{% extends 'hangarin/base.html' %}
+
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div>
+    <h1>Settings</h1>
+    <p class="muted">Your account and a quick look at your data.</p>
+  </div>
+</section>
+
+<div class="row g-4">
+  <div class="col-12 col-lg-6">
+    <section class="panel panel-body h-100">
+      <h2 class="mb-3">Account</h2>
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <span class="avatar-lg">{% include 'hangarin/includes/avatar.html' %}</span>
+        <div>
+          <div class="fw-semibold">{{ profile.name }}</div>
+          <a class="link" href="{% url 'profile-edit' %}">Edit name</a>
+        </div>
+      </div>
+      <dl class="details">
+        <dt>Username</dt><dd>{{ user.get_username }}</dd>
+        <dt>Email</dt><dd>{{ user.email|default:"Not set" }}</dd>
+        <dt>Role</dt><dd>{% if user.is_superuser %}Administrator{% elif user.is_staff %}Staff{% else %}Member{% endif %}</dd>
+        <dt>Last login</dt><dd>{{ user.last_login|date:"M j, Y · g:i A"|default:"This is your first session" }}</dd>
+      </dl>
+      <div class="d-flex flex-wrap gap-2 mt-4">
+        {% if user.is_staff %}<a class="btn btn-ghost" href="{% url 'admin:index' %}">Open admin panel</a>{% endif %}
+        <a class="btn btn-ghost" href="{% url 'socialaccount_connections' %}">Google &amp; GitHub</a>
+        <a class="btn btn-ghost" href="{% url 'account_change_password' %}">Change password</a>
+        <form method="post" action="{% url 'account_logout' %}">{% csrf_token %}<button class="btn btn-ghost" type="submit">Log out</button></form>
+      </div>
+    </section>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <section class="panel panel-body h-100">
+      <h2 class="mb-3">Your data</h2>
+      <dl class="details">
+        {% for label, count in counts %}<dt>{{ label }}</dt><dd>{{ count }}</dd>{% endfor %}
+      </dl>
+    </section>
+  </div>
+</div>
+{% endblock %}

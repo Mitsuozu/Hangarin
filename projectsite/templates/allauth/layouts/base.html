@@ -1,0 +1,35 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>{% block head_title %}{% endblock head_title %} · Hangarin</title>
+  <link rel="stylesheet" href="{% static 'hangarin/vendor/bootstrap/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'hangarin/css/hangarin.css' %}">
+  {% block extra_head %}{% endblock extra_head %}
+</head>
+<body>
+  {% include 'hangarin/includes/icons.html' %}
+  <main class="auth">
+    <div class="auth-card panel">
+      <a class="brand justify-content-center" href="{% url 'dashboard' %}">
+        <span class="brand-mark" aria-hidden="true"><svg class="icon"><use href="#i-check"></use></svg></span>
+        <span class="brand-name">Hangarin</span>
+      </a>
+
+      {% for message in messages %}
+      <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' or message.tags == 'warning' %}{{ message.tags }}{% else %}info{% endif %}" role="alert">{{ message }}</div>
+      {% endfor %}
+
+      {% block content %}{% endblock content %}
+
+      {% if user.is_authenticated %}
+      <p class="text-center mt-4 mb-0"><a class="link" href="{% url 'dashboard' %}">&larr; Back to Hangarin</a></p>
+      {% endif %}
+    </div>
+  </main>
+  <script src="{% static 'hangarin/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  {% block extra_body %}{% endblock extra_body %}
+</body>
+</html>

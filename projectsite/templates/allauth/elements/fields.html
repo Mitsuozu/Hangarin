@@ -1,0 +1,24 @@
+{% load hangarin_tags %}
+{% for error in attrs.form.non_field_errors %}
+<div class="alert alert-danger" role="alert">{{ error }}</div>
+{% endfor %}
+{% for field in attrs.form %}
+  {% if field.is_hidden %}
+    {{ field }}
+  {% elif field.widget_type == 'checkbox' %}
+    <div class="mb-3">
+      <div class="form-check">
+        {{ field|as_bs }}
+        <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      </div>
+      {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+  {% else %}
+    <div class="mb-3">
+      <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field|as_bs }}
+      {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+      {% if field.help_text %}<div class="form-text">{{ field.help_text|safe }}</div>{% endif %}
+    </div>
+  {% endif %}
+{% endfor %}

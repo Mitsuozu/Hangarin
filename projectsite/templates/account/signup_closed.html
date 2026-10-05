@@ -1,0 +1,8 @@
+{% extends "account/base_entrance.html" %}
+{% block head_title %}Sign up is closed{% endblock head_title %}
+{% block content %}
+  <h1 class="auth-title">No account linked</h1>
+  <p class="muted">Hangarin does not create new accounts on its own, and no Hangarin account is linked to this login yet.</p>
+  <p class="muted">Sign in with your username and password first, then connect Google or GitHub from <strong>Settings</strong>. After that, the buttons will work for you.</p>
+  <a class="btn btn-primary w-100 mt-2" href="{% url 'account_login' %}">Back to sign in</a>
+{% endblock content %}

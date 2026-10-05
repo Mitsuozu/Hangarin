@@ -1,0 +1,118 @@
+{% extends 'hangarin/base.html' %}
+
+{% block title %}{{ task.title }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div>
+    <h1>{{ task.title }}</h1>
+    <div class="d-flex flex-wrap gap-2 mt-2">
+      <span class="badge status-{{ task.status|slugify }}">{{ task.status }}</span>
+      <span class="badge pri-{{ task.priority.name|slugify }}">{{ task.priority.name }}</span>
+      <span class="badge">{{ task.category.name }}</span>
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-ghost" href="{% url 'task-edit' task.pk %}"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-edit"></use></svg>Edit</a>
+    <a class="btn btn-danger" href="{% url 'task-delete' task.pk %}"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-trash"></use></svg>Delete</a>
+  </div>
+</section>
+
+<div class="row g-4">
+  <div class="col-12 col-xl-8">
+    <div class="stack">
+      <section class="panel panel-body">
+        <h2 class="mb-3">Description</h2>
+        {% if task.description %}<p class="prewrap">{{ task.description }}</p>{% else %}<p class="muted">No description.</p>{% endif %}
+      </section>
+
+      <section class="panel" aria-labelledby="notes-title">
+        <div class="panel-head">
+          <h2 id="notes-title">Notes</h2>
+          <a class="link" href="{% url 'note-add' %}?task={{ task.pk }}">Add note</a>
+        </div>
+        {% if notes %}
+        <ul class="rows">
+          {% for note in notes %}
+          <li class="row-item">
+            <div class="row-main">
+              <p class="note-text">{{ note.content }}</p>
+              <small class="muted">{{ note.created_at|date:"M j, Y · g:i A" }}</small>
+            </div>
+            <div class="task-actions">
+              <a class="icon-btn" href="{% url 'note-edit' note.pk %}?task={{ task.pk }}" aria-label="Edit note" title="Edit"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-edit"></use></svg></a>
+              <a class="icon-btn icon-btn-danger" href="{% url 'note-delete' note.pk %}" aria-label="Delete note" title="Delete"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-trash"></use></svg></a>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="muted small pad">No notes on this task yet.</p>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-4">
+    <div class="stack">
+      <section class="panel panel-body">
+        <h2 class="mb-3">Details</h2>
+        <dl class="details">
+          <dt>Deadline</dt>
+          <dd class="{% if task.deadline < now and task.status != 'Completed' %}text-accent{% endif %}">{{ task.deadline|date:"M j, Y · g:i A" }}{% if task.deadline < now and task.status != 'Completed' %} (overdue){% endif %}</dd>
+          <dt>Created</dt><dd>{{ task.created_at|date:"M j, Y" }}</dd>
+          <dt>Last updated</dt><dd>{{ task.updated_at|date:"M j, Y · g:i A" }}</dd>
+        </dl>
+        <form method="post" action="{% url 'task-toggle' task.pk %}" class="mt-3">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <button type="submit" class="btn btn-ghost w-100">
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#i-check"></use></svg>
+            {% if task.status == 'Completed' %}Mark as pending{% else %}Mark as completed{% endif %}
+          </button>
+        </form>
+      </section>
+
+      <section class="panel" aria-labelledby="sub-title">
+        <div class="panel-head">
+          <h2 id="sub-title">Subtasks{% if subtasks %} <span class="muted fw-normal">{{ subtask_done }}/{{ subtasks|length }}</span>{% endif %}</h2>
+          <a class="link" href="{% url 'subtask-add' task.pk %}">Add subtask</a>
+        </div>
+        {% if subtasks %}
+        <div class="px-3 pt-2">
+          <div class="bar" role="progressbar" aria-valuenow="{{ subtask_percent }}" aria-valuemin="0" aria-valuemax="100" aria-label="Subtasks completed"><span class="fill-status-completed" style="width: {{ subtask_percent }}%"></span></div>
+        </div>
+        <ul class="rows">
+          {% for sub in subtasks %}
+          <li class="row-item{% if sub.status == 'Completed' %} is-done{% endif %}">
+            <form class="task-check" method="post" action="{% url 'subtask-toggle' sub.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <button type="submit" class="check{% if sub.status == 'Completed' %} is-checked{% endif %}"
+                      aria-pressed="{% if sub.status == 'Completed' %}true{% else %}false{% endif %}"
+                      aria-label="{% if sub.status == 'Completed' %}Mark &quot;{{ sub.title }}&quot; as pending{% else %}Mark &quot;{{ sub.title }}&quot; as completed{% endif %}">
+                <svg class="icon icon-sm" aria-hidden="true"><use href="#i-check"></use></svg>
+              </button>
+            </form>
+            <div class="row-main">
+              <span class="sub-title">{{ sub.title }}</span>
+              <span><span class="badge status-{{ sub.status|slugify }}">{{ sub.status }}</span></span>
+            </div>
+            <div class="task-actions">
+              <a class="icon-btn" href="{% url 'subtask-edit' sub.pk %}" aria-label="Edit {{ sub.title }}" title="Edit"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-edit"></use></svg></a>
+              <a class="icon-btn icon-btn-danger" href="{% url 'subtask-delete' sub.pk %}" aria-label="Delete {{ sub.title }}" title="Delete"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-trash"></use></svg></a>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="empty">
+          <p>No subtasks yet. Break this task into small steps.</p>
+          <a class="btn btn-primary btn-sm" href="{% url 'subtask-add' task.pk %}">Add the first subtask</a>
+        </div>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock %}

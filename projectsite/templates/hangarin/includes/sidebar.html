@@ -1,0 +1,40 @@
+<aside class="sidebar" id="sidebar" aria-label="Main navigation">
+  <a class="brand" href="{% url 'dashboard' %}">
+    <span class="brand-mark" aria-hidden="true"><svg class="icon"><use href="#i-check"></use></svg></span>
+    <span class="brand-name">Hangarin</span>
+  </a>
+
+  <nav class="side-nav">
+    <p class="side-label">Workspace</p>
+    <a class="side-link{% if active_nav == 'dashboard' %} is-active{% endif %}" href="{% url 'dashboard' %}"{% if active_nav == 'dashboard' %} aria-current="page"{% endif %}>
+      <svg class="icon" aria-hidden="true"><use href="#i-grid"></use></svg><span>Dashboard</span></a>
+    <a class="side-link{% if active_nav == 'all' %} is-active{% endif %}" href="{% url 'task-list' %}"{% if active_nav == 'all' %} aria-current="page"{% endif %}>
+      <svg class="icon" aria-hidden="true"><use href="#i-list"></use></svg><span>My Tasks</span></a>
+    <a class="side-link{% if active_nav == 'today' %} is-active{% endif %}" href="{% url 'task-today' %}"{% if active_nav == 'today' %} aria-current="page"{% endif %}>
+      <svg class="icon" aria-hidden="true"><use href="#i-sun"></use></svg><span>Today's Tasks</span></a>
+    <a class="side-link{% if active_nav == 'upcoming' %} is-active{% endif %}" href="{% url 'task-upcoming' %}"{% if active_nav == 'upcoming' %} aria-current="page"{% endif %}>
+      <svg class="icon" aria-hidden="true"><use href="#i-calendar"></use></svg><span>Upcoming Tasks</span></a>
+    <a class="side-link{% if active_nav == 'completed' %} is-active{% endif %}" href="{% url 'task-completed' %}"{% if active_nav == 'completed' %} aria-current="page"{% endif %}>
+      <svg class="icon" aria-hidden="true"><use href="#i-check-circle"></use></svg><span>Completed Tasks</span></a>
+
+    <p class="side-label">Organize</p>
+    <a class="side-link{% if active_nav == 'categories' %} is-active{% endif %}" href="{% url 'category-list' %}"{% if active_nav == 'categories' %} aria-current="page"{% endif %}>
+      <svg class="icon" aria-hidden="true"><use href="#i-tag"></use></svg><span>Categories</span></a>
+    <a class="side-link{% if active_nav == 'priorities' %} is-active{% endif %}" href="{% url 'priority-list' %}"{% if active_nav == 'priorities' %} aria-current="page"{% endif %}>
+      <svg class="icon" aria-hidden="true"><use href="#i-flag"></use></svg><span>Priorities</span></a>
+    <a class="side-link{% if active_nav == 'notes' %} is-active{% endif %}" href="{% url 'note-list' %}"{% if active_nav == 'notes' %} aria-current="page"{% endif %}>
+      <svg class="icon" aria-hidden="true"><use href="#i-note"></use></svg><span>Notes</span></a>
+
+    <p class="side-label">Account</p>
+    <a class="side-link{% if active_nav == 'settings' %} is-active{% endif %}" href="{% url 'settings' %}"{% if active_nav == 'settings' %} aria-current="page"{% endif %}>
+      <svg class="icon" aria-hidden="true"><use href="#i-cog"></use></svg><span>Settings</span></a>
+  </nav>
+
+  <div class="sidebar-user">
+    {% include 'hangarin/includes/avatar.html' %}
+    <div class="sidebar-user-text">
+      <strong>{% if profile %}{{ profile.name }}{% else %}Guest{% endif %}</strong>
+      <small>{% if user.is_staff %}Administrator{% elif user.is_authenticated %}Member{% else %}Not signed in{% endif %}</small>
+    </div>
+  </div>
+</aside>

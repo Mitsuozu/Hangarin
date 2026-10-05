@@ -1,0 +1,34 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Sign in · Hangarin</title>
+  <link rel="stylesheet" href="{% static 'hangarin/vendor/bootstrap/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'hangarin/css/hangarin.css' %}">
+</head>
+<body>
+  {% include 'hangarin/includes/icons.html' %}
+  <main class="auth">
+    <div class="auth-card panel">
+      <div class="brand justify-content-center">
+        <span class="brand-mark" aria-hidden="true"><svg class="icon"><use href="#i-check"></use></svg></span>
+        <span class="brand-name">Hangarin</span>
+      </div>
+      <h1 class="text-center mb-1">Welcome back</h1>
+      <p class="muted text-center mb-4">Sign in to see your tasks.</p>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% for error in form.non_field_errors %}<div class="alert alert-danger">{{ error }}</div>{% endfor %}
+        <div class="row g-3">
+          {% include 'hangarin/includes/form_fields.html' %}
+        </div>
+        <input type="hidden" name="next" value="{{ next }}">
+        <button type="submit" class="btn btn-primary w-100 mt-4">Sign in</button>
+      </form>
+    </div>
+  </main>
+</body>
+</html>
